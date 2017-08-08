@@ -49,8 +49,8 @@ class SdA(object):
     """Stacked denoising auto-encoder class (SdA)
 
     A stacked denoising autoencoder model is obtained by stacking several
-    dAs. The hidden layer of the dA at layer `i` becomes the input of
-    the dA at layer `i+1`. The first layer dA gets as input the input of
+    dAs. The hidden layer of the dA at layer `i` becomes the inputs of
+    the dA at layer `i+1`. The first layer dA gets as inputs the inputs of
     the SdA, and the hidden layer of the last dA represents the output.
     Note that after pretraining, the SdA is dealt with as a normal MLP,
     the dAs are only used to initialize the weights.
@@ -76,7 +76,7 @@ class SdA(object):
                            generated based on a seed drawn from `rng`
 
         :type n_ins: int
-        :param n_ins: dimension of the input to the sdA
+        :param n_ins: dimension of the inputs to the sdA
 
         :type n_layers_sizes: list of ints
         :param n_layers_sizes: intermediate layers size, must contain
@@ -119,15 +119,15 @@ class SdA(object):
         for i in range(self.n_layers):
             # construct the sigmoidal layer
 
-            # the size of the input is either the number of hidden units of
-            # the layer below or the input size if we are on the first layer
+            # the size of the inputs is either the number of hidden units of
+            # the layer below or the inputs size if we are on the first layer
             if i == 0:
                 input_size = n_ins
             else:
                 input_size = hidden_layers_sizes[i - 1]
 
-            # the input to this layer is either the activation of the hidden
-            # layer below or the input of the SdA if you are on the first
+            # the inputs to this layer is either the activation of the hidden
+            # layer below or the inputs of the SdA if you are on the first
             # layer
             if i == 0:
                 layer_input = self.x
@@ -174,18 +174,18 @@ class SdA(object):
         self.finetune_cost = self.logLayer.negative_log_likelihood(self.y)
         # compute the gradients with respect to the model parameters
         # symbolic variable that points to the number of errors made on the
-        # minibatch given by self.x and self.y
+        # mini-batch given by self.x and self.y
         self.errors = self.logLayer.errors(self.y)
 
     def pretraining_functions(self, train_set_x, batch_size):
         ''' Generates a list of functions, each of them implementing one
         step in trainnig the dA corresponding to the layer with same index.
-        The function will require as input the minibatch index, and to train
+        The function will require as inputs the mini-batch index, and to train
         a dA you just need to iterate, calling the corresponding function on
-        all minibatch indexes.
+        all mini-batch indexes.
 
         :type train_set_x: theano.tensor.TensorType
-        :param train_set_x: Shared variable that contains all datapoints used
+        :param train_set_x: Shared variable that contains all data-points used
                             for training the dA
 
         :type batch_size: int
@@ -197,7 +197,7 @@ class SdA(object):
         '''
 
         # index to a [mini]batch
-        index = T.lscalar('index')  # index to a minibatch
+        index = T.lscalar('index')  # index to a mini-batch
         corruption_level = T.scalar('corruption')  # % of corruption to use
         learning_rate = T.scalar('lr')  # learning rate to use
         # begining of a batch, given `index`
@@ -239,10 +239,10 @@ class SdA(object):
                          the has to contain three pairs, `train`,
                          `valid`, `test` in this order, where each pair
                          is formed of two Theano variables, one for the
-                         datapoints, the other for the labels
+                         data-points, the other for the labels
 
         :type batch_size: int
-        :param batch_size: size of a minibatch
+        :param batch_size: size of a mini-batch
 
         :type learning_rate: float
         :param learning_rate: learning rate used during finetune stage
@@ -252,7 +252,7 @@ class SdA(object):
         (valid_set_x, valid_set_y) = datasets[1]
         (test_set_x, test_set_y) = datasets[2]
 
-        # compute number of minibatches for training, validation and testing
+        # compute number of mini-batches for training, validation and testing
         n_valid_batches = valid_set_x.get_value(borrow=True).shape[0]
         n_valid_batches /= batch_size
         n_test_batches = test_set_x.get_value(borrow=True).shape[0]
@@ -261,12 +261,12 @@ class SdA(object):
         index = T.lscalar('index')  # index to a [mini]batch
 
         # compute the gradients with respect to the model parameters
-        gparams = T.grad(self.finetune_cost, self.params)
+        g_params = T.grad(self.finetune_cost, self.params)
 
         # compute list of fine-tuning updates
         updates = [
-            (param, param - gparam * learning_rate)
-            for param, gparam in zip(self.params, gparams)
+            (param, param - g_param * learning_rate)
+            for param, g_param in zip(self.params, g_params)
         ]
 
         train_fn = theano.function(
@@ -285,8 +285,8 @@ class SdA(object):
         )
 
         test_score_i = theano.function(
-            [index],
-            self.errors,
+            inputs=[index],
+            outputs=self.errors,
             givens={
                 self.x: test_set_x[
                     index * batch_size: (index + 1) * batch_size
@@ -299,8 +299,8 @@ class SdA(object):
         )
 
         valid_score_i = theano.function(
-            [index],
-            self.errors,
+            inputs=[index],
+            outputs=self.errors,
             givens={
                 self.x: valid_set_x[
                     index * batch_size: (index + 1) * batch_size
@@ -355,7 +355,7 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=15,
     valid_set_x, valid_set_y = datasets[1]
     test_set_x, test_set_y = datasets[2]
 
-    # compute number of minibatches for training, validation and testing
+    # compute number of mini-batches for training, validation and testing
     n_train_batches = train_set_x.get_value(borrow=True).shape[0]
     n_train_batches /= batch_size
 
@@ -421,7 +421,7 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=15,
                                    # considered significant
     validation_frequency = min(n_train_batches, patience / 2)
                                   # go through this many
-                                  # minibatche before checking the network
+                                  # mini-batches before checking the network
                                   # on the validation set; in this case we
                                   # check every epoch
 
@@ -441,7 +441,7 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=15,
             if (iter + 1) % validation_frequency == 0:
                 validation_losses = validate_model()
                 this_validation_loss = numpy.mean(validation_losses)
-                print(('epoch %i, minibatch %i/%i, validation error %f %%' %
+                print(('epoch %i, mini-batch %i/%i, validation error %f %%' %
                       (epoch, minibatch_index + 1, n_train_batches,
                        this_validation_loss * 100.)))
 
@@ -462,7 +462,7 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=15,
                     # test it on the test set
                     test_losses = test_model()
                     test_score = numpy.mean(test_losses)
-                    print((('     epoch %i, minibatch %i/%i, test error of '
+                    print((('     epoch %i, mini-batch %i/%i, test error of '
                            'best model %f %%') %
                           (epoch, minibatch_index + 1, n_train_batches,
                            test_score * 100.)))

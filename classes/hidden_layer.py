@@ -1,40 +1,33 @@
-import numpy
+from numpy import asarray, sqrt, zeros
+from numpy.random import RandomState
 import theano
 import theano.tensor as T
+from theano.tensor import dmatrix
 
 
 class HiddenLayer(object):
-    def __init__(self, rng, input, n_in, n_out, W=None, b=None,
+
+    def __init__(self, rng: RandomState, inputs: dmatrix,
+                 n_in: int, n_out: int, W=None, b=None,
                  activation=T.tanh):
         """
         Typical hidden layer of a MLP: units are fully-connected and have
-        sigmoidal activation function. Weight matrix W is of shape (n_in,n_out)
+        sigmoidal activation function. Weight matrix W is of shape (n_in, n_out)
         and the bias vector b is of shape (n_out,).
 
-        NOTE : The nonlinearity used here is tanh
+        NOTE : The non-linearity used here is tanh
 
-        Hidden unit activation is given by: tanh(dot(input,W) + b)
+        Hidden unit activation is given by: tanh(dot(inputs, W) + b)
 
-        :type rng: numpy.random.RandomState
         :param rng: a random number generator used to initialize weights
-
-        :type input: theano.tensor.dmatrix
-        :param input: a symbolic tensor of shape (n_examples, n_in)
-
-        :type n_in: int
-        :param n_in: dimensionality of input
-
-        :type n_out: int
+        :param inputs: a symbolic tensor of shape (n_examples, n_in)
+        :param n_in: dimensionality of inputs
         :param n_out: number of hidden units
-
         :type activation: theano.Op or function
-        :param activation: Non linearity to be applied in the hidden
-                           layer
+        :param activation: non-linearity to be applied in the hidden layer
         """
-        self.input = input
-        # end-snippet-1
-
-        # `W` is initialized with `W_values` which is uniformely sampled
+        self.inputs = inputs
+        # `W` is initialized with `W_values` which is uniformly sampled
         # from sqrt(-6./(n_in+n_hidden)) and sqrt(6./(n_in+n_hidden))
         # for tanh activation function
         # the output of uniform if converted using asarray to dtype
@@ -47,10 +40,10 @@ class HiddenLayer(object):
         #        We have no info for other function, so we use the same as
         #        tanh.
         if W is None:
-            W_values = numpy.asarray(
+            W_values = asarray(
                 rng.uniform(
-                    low=-numpy.sqrt(6. / (n_in + n_out)),
-                    high=numpy.sqrt(6. / (n_in + n_out)),
+                    low=-sqrt(6. / (n_in + n_out)),
+                    high=sqrt(6. / (n_in + n_out)),
                     size=(n_in, n_out)
                 ),
                 dtype=theano.config.floatX
@@ -61,13 +54,13 @@ class HiddenLayer(object):
             W = theano.shared(value=W_values, name='W', borrow=True)
 
         if b is None:
-            b_values = numpy.zeros((n_out,), dtype=theano.config.floatX)
+            b_values = zeros((n_out,), dtype=theano.config.floatX)
             b = theano.shared(value=b_values, name='b', borrow=True)
 
         self.W = W
         self.b = b
 
-        lin_output = T.dot(input, self.W) + self.b
+        lin_output = T.dot(inputs, self.W) + self.b
         self.output = (
             lin_output if activation is None
             else activation(lin_output)

@@ -40,19 +40,19 @@ def load_data(dataset):
     f = gzip.open(dataset, 'rb')
     train_set, valid_set, test_set = pickle.load(f, encoding='latin1')
     f.close()
-    #train_set, valid_set, test_set format: tuple(input, target)
-    #input is an numpy.ndarray of 2 dimensions (a matrix)
+    #train_set, valid_set, test_set format: tuple(inputs, target)
+    #inputs is an numpy.ndarray of 2 dimensions (a matrix)
     #witch row's correspond to an example. target is a
     #numpy.ndarray of 1 dimensions (vector)) that have the same length as
-    #the number of rows in the input. It should give the target
-    #target to the example with the same index in the input.
+    #the number of rows in the inputs. It should give the target
+    #target to the example with the same index in the inputs.
 
     def shared_dataset(data_xy, borrow=True):
         """ Function that loads the dataset into shared variables
 
         The reason we store our dataset in shared variables is to allow
         Theano to copy it into the GPU memory (when code is run on GPU).
-        Since copying data into the GPU is slow, copying a minibatch everytime
+        Since copying data into the GPU is slow, copying a mini-batch everytime
         is needed (the default behaviour if the data is not in a shared
         variable) would lead to a large decrease in performance.
         """

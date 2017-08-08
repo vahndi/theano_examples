@@ -94,10 +94,10 @@ class RestrictedBoltzmannMachine(object):
                 borrow=True
             )
 
-        # initialize input layer for standalone RBM or layer0 of DBN
+        # initialize inputs layer for standalone RBM or layer0 of DBN
         self.input = input
         if not input:
-            self.input = T.matrix('input')
+            self.input = T.matrix('inputs')
 
         self.weights = weights
         self.hidden_bias = hidden_bias
@@ -272,7 +272,7 @@ class RestrictedBoltzmannMachine(object):
         """
         # index of bit i in expression p(x_i | x_{\i})
         bit_i_idx = theano.shared(value=0, name='bit_i_idx')
-        # binarize the input image by rounding to nearest integer
+        # binarize the inputs image by rounding to nearest integer
         xi = T.round(self.input)
         # calculate free energy for the given bit configuration
         fe_xi = self.free_energy(xi)
@@ -298,9 +298,9 @@ class RestrictedBoltzmannMachine(object):
         Approximation to the reconstruction error
 
         Note that this function requires the pre-sigmoid activation as
-        input.  To understand why this is so you need to understand a
+        inputs.  To understand why this is so you need to understand a
         bit about how Theano works. Whenever you compile a Theano
-        function, the computational graph that you pass as input gets
+        function, the computational graph that you pass as inputs gets
         optimized for speed and stability.  This is done by changing
         several parts of the subgraphs with others.  One such
         optimization expresses terms of the form log(sigmoid(x)) in

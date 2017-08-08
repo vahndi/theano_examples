@@ -71,7 +71,7 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
     valid_set_x, valid_set_y = datasets[1]
     test_set_x, test_set_y = datasets[2]
 
-    # compute number of minibatches for training, validation and testing
+    # compute number of mini-batches for training, validation and testing
     n_train_batches = train_set_x.get_value(borrow=True).shape[0] / batch_size
     n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] / batch_size
     n_test_batches = test_set_x.get_value(borrow=True).shape[0] / batch_size
@@ -84,8 +84,8 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
     # allocate symbolic variables for the data
     index = T.lscalar()  # index to a [mini]batch
 
-    # generate symbolic variables for input (x and y represent a
-    # minibatch)
+    # generate symbolic variables for inputs (x and y represent a
+    # mini-batch)
     x = T.matrix('x')  # data, presented as rasterized images
     y = T.ivector('y')  # labels, presented as 1D vector of [int] labels
 
@@ -98,7 +98,7 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
     cost = classifier.negative_log_likelihood(y)
 
     # compiling a Theano function that computes the mistakes that are made by
-    # the model on a minibatch
+    # the model on a mini-batch
     test_model = theano.function(
         inputs=[index],
         outputs=classifier.errors(y),
@@ -150,7 +150,7 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
     patience_increase = 2  # wait this much longer when a new best is found
     improvement_threshold = 0.995  # a relative improvement of this much is considered significant
     validation_frequency = min(n_train_batches, patience / 2)
-        # go through this many minibatches before checking the network
+        # go through this many mini-batches before checking the network
         # on the validation set; in this case we check every epoch
 
     best_validation_loss = numpy.inf
@@ -174,7 +174,7 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
                 this_validation_loss = numpy.mean(validation_losses)
 
                 print((
-                    'epoch %i, minibatch %i/%i, validation error %f %%' %
+                    'epoch %i, mini-batch %i/%i, validation error %f %%' %
                     (
                         epoch,
                         mini_batch_index + 1,
@@ -199,7 +199,7 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
 
                     print((
                         (
-                            '     epoch %i, minibatch %i/%i, test error of'
+                            '     epoch %i, mini-batch %i/%i, test error of'
                             ' best model %f %%'
                         ) %
                         (
@@ -245,7 +245,8 @@ def predict():
     # compile a predictor function
     predict_model = theano.function(
         inputs=[classifier.input],
-        outputs=classifier.y_pred)
+        outputs=classifier.y_pred
+    )
 
     # We can test it on some examples from test test
     dataset='mnist.pkl.gz'

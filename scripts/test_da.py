@@ -48,23 +48,17 @@ from classes.denoising_autoencoder import DenoisingAutoEncoder
 from io import load_data
 
 
-def test_dA(learning_rate=0.1, training_epochs=15,
-            dataset='mnist.pkl.gz',
-            batch_size=20, output_folder='dA_plots'):
-
+def test_da(learning_rate: float=0.1, training_epochs: int=15,
+            dataset: str='mnist.pkl.gz',
+            batch_size: int=20, output_folder: str='dA_plots'):
     """
     This demo is tested on MNIST
 
-    :type learning_rate: float
-    :param learning_rate: learning rate used for training the DeNosing
-                          AutoEncoder
-
-    :type training_epochs: int
+    :param learning_rate: learning rate used for training the Denoising AutoEncoder
     :param training_epochs: number of epochs used for training
-
-    :type dataset: string
-    :param dataset: path to the picked dataset
-
+    :param dataset: path to the pickled dataset
+    :param batch_size: size of a mini-batch
+    :param output_folder: name of the folder to save the output images to
     """
     datasets = load_data(dataset)
     train_set_x, train_set_y = datasets[0]
@@ -87,7 +81,7 @@ def test_dA(learning_rate=0.1, training_epochs=15,
 
     da = DenoisingAutoEncoder(
         numpy_rng=rng, theano_rng=theano_rng,
-        input=x, n_visible=28 * 28, n_hidden=500
+        inputs=x, n_visible=28 * 28, n_hidden=500
     )
 
     cost, updates = da.get_cost_updates(
@@ -96,8 +90,8 @@ def test_dA(learning_rate=0.1, training_epochs=15,
     )
 
     train_da = theano.function(
-        [index],
-        cost,
+        inputs=[index],
+        outputs=cost,
         updates=updates,
         givens={
             x: train_set_x[index * batch_size: (index + 1) * batch_size]
@@ -129,7 +123,8 @@ def test_dA(learning_rate=0.1, training_epochs=15,
     image = Image.fromarray(
         tile_raster_images(X=da.W.get_value(borrow=True).T,
                            img_shape=(28, 28), tile_shape=(10, 10),
-                           tile_spacing=(1, 1)))
+                           tile_spacing=(1, 1))
+    )
     image.save('filters_corruption_0.png')
 
     #####################################
@@ -141,7 +136,7 @@ def test_dA(learning_rate=0.1, training_epochs=15,
 
     da = DenoisingAutoEncoder(
         numpy_rng=rng, theano_rng=theano_rng,
-        input=x, n_visible=28 * 28, n_hidden=500
+        inputs=x, n_visible=28 * 28, n_hidden=500
     )
 
     cost, updates = da.get_cost_updates(
@@ -150,8 +145,8 @@ def test_dA(learning_rate=0.1, training_epochs=15,
     )
 
     train_da = theano.function(
-        [index],
-        cost,
+        inputs=[index],
+        outputs=cost,
         updates=updates,
         givens={
             x: train_set_x[index * batch_size: (index + 1) * batch_size]
@@ -192,4 +187,4 @@ def test_dA(learning_rate=0.1, training_epochs=15,
 
 if __name__ == '__main__':
 
-    test_dA()
+    test_da()
