@@ -14,8 +14,8 @@ def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
     Demonstrates how to train and test a Deep Belief Network.
     This is demonstrated on MNIST.
 
-    :param fine_tune_lr: learning rate used in the finetune stage
-    :param pre_training_epochs: number of epoch to do pretraining
+    :param fine_tune_lr: learning rate used in the fine-tune stage
+    :param pre_training_epochs: number of epoch to do pre-training
     :param pre_train_lr: learning rate to be used during pre-training
     :param k: number of Gibbs steps in CD/PCD
     :param training_epochs: maximal number of iterations ot run the optimizer
@@ -52,7 +52,7 @@ def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
 
     print('... pre-training the model')
     start_time = timeit.default_timer()
-    ## Pre-train layer-wise
+    # Pre-train layer-wise
     for i in range(dbn.n_layers):
         # go through pre-training epochs
         for epoch in range(pre_training_epochs):
@@ -69,9 +69,9 @@ def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
            (os.path.split(__file__)[1], (end_time - start_time) / 60.)),
           file=sys.stderr)
 
-    ########################
-    # FINETUNING THE MODEL #
-    ########################
+    #########################
+    # FINE-TUNING THE MODEL #
+    #########################
 
     # get the training, validation and testing function for the model
     print('... getting the fine-tuning functions')
@@ -99,9 +99,9 @@ def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
         epoch += 1
         for mini_batch_index in range(int(n_train_batches)):
             mini_batch_avg_cost = train_fn(mini_batch_index)
-            iter = (epoch - 1) * n_train_batches + mini_batch_index
+            iteration = (epoch - 1) * n_train_batches + mini_batch_index
 
-            if (iter + 1) % validation_frequency == 0:
+            if (iteration + 1) % validation_frequency == 0:
 
                 validation_losses = validate_model()
                 this_validation_loss = numpy.mean(validation_losses)
@@ -122,11 +122,11 @@ def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
                         this_validation_loss < best_validation_loss *
                         improvement_threshold
                     ):
-                        patience = max(patience, iter * patience_increase)
+                        patience = max(patience, iteration * patience_increase)
 
                     # save best validation score and iteration number
                     best_validation_loss = this_validation_loss
-                    best_iter = iter
+                    best_iteration = iteration
 
                     # test it on the test set
                     test_losses = test_model()
@@ -136,7 +136,7 @@ def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
                           (epoch, mini_batch_index + 1, n_train_batches,
                            test_score * 100.)))
 
-            if patience <= iter:
+            if patience <= iteration:
                 done_looping = True
                 break
 
@@ -146,7 +146,7 @@ def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
             'Optimization complete with best validation score of %f %%, '
             'obtained at iteration %i, '
             'with test performance %f %%'
-        ) % (best_validation_loss * 100., best_iter + 1, test_score * 100.)
+        ) % (best_validation_loss * 100., best_iteration + 1, test_score * 100.)
     ))
     print(('The fine tuning code for file %s ran for %.2fm' %
            (os.path.split(__file__)[1], (end_time - start_time) / 60.)),

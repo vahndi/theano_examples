@@ -95,20 +95,20 @@ class DeepBeliefNetwork(object):
             rbm_layer = RestrictedBoltzmannMachine(
                 numpy_rng=numpy_rng, theano_rng=theano_rng,
                 input=layer_input, n_visible=input_size, n_hidden=hidden_layers_sizes[i],
-                weights=sigmoid_layer.W, hidden_bias=sigmoid_layer.b
+                weights=sigmoid_layer.weights, hidden_bias=sigmoid_layer.biases
             )
             self.rbm_layers.append(rbm_layer)
 
         # We now need to add a logistic layer on top of the MLP
         self.logLayer = LogisticRegression(
-            input=self.sigmoid_layers[-1].output,
+            inputs=self.sigmoid_layers[-1].output,
             n_in=hidden_layers_sizes[-1], n_out=n_outs
         )
         self.params.extend(self.logLayer.params)
 
         # compute the cost for second phase of training, defined as the
         # negative log likelihood of the logistic regression (output) layer
-        self.finetune_cost = self.logLayer.negative_log_likelihood(self.y)
+        self.fine_tune_cost = self.logLayer.negative_log_likelihood(self.y)
 
         # compute the gradients with respect to the model parameters
         # symbolic variable that points to the number of errors made on the
@@ -164,7 +164,7 @@ class DeepBeliefNetwork(object):
     def build_fine_tune_functions(self, datasets, batch_size, learning_rate):
         """
         Generates a function `train` that implements one step of
-        finetuning, a function `validate` that computes the error on a
+        fine-tuning, a function `validate` that computes the error on a
         batch from the validation set, and a function `test` that
         computes the error on a batch from the testing set
 
@@ -189,7 +189,7 @@ class DeepBeliefNetwork(object):
         n_test_batches /= batch_size
         index = T.lscalar('index')  # index to a [mini]batch
         # compute the gradients with respect to the model parameters
-        g_params = T.grad(self.finetune_cost, self.params)
+        g_params = T.grad(self.fine_tune_cost, self.params)
         # compute list of fine-tuning updates
         updates = []
         for param, g_param in zip(self.params, g_params):
@@ -197,7 +197,7 @@ class DeepBeliefNetwork(object):
 
         train_fn = theano.function(
             inputs=[index],
-            outputs=self.finetune_cost,
+            outputs=self.fine_tune_cost,
             updates=updates,
             givens={
                 self.x: train_set_x[

@@ -23,9 +23,9 @@ class DenoisingAutoEncoder(object):
 
         \tilde{x} ~ q_D(\tilde{x}|x)                                     (1)
 
-        y = s(W \tilde{x} + b)                                           (2)
+        y = s(weights \tilde{x} + biases)                                           (2)
 
-        x = s(W' y  + b')                                                (3)
+        x = s(weights' y  + biases')                                                (3)
 
         L(x,z) = -sum_{k=1}^d [x_k \log z_k + (1-x_k) \log( 1-z_k)]      (4)
 
@@ -71,7 +71,7 @@ class DenoisingAutoEncoder(object):
         if not theano_rng:
             theano_rng = RandomStreams(numpy_rng.randint(2 ** 30))
 
-        # note : weights' was written as `W_prime` and b' as `b_prime`
+        # note : weights' was written as `W_prime` and biases' as `b_prime`
         if not weights:
             # weights is initialized with `initial_weights` which is uniformly sampled
             # from -4*sqrt(6./(n_visible+n_hidden)) and
@@ -103,12 +103,12 @@ class DenoisingAutoEncoder(object):
                     n_hidden,
                     dtype=theano.config.floatX
                 ),
-                name='b',
+                name='biases',
                 borrow=True
             )
 
         self.W = weights
-        # b corresponds to the bias of the hidden
+        # biases corresponds to the bias of the hidden
         self.b = hidden_bias
         # b_prime corresponds to the bias of the visible
         self.b_prime = visible_bias
@@ -125,7 +125,7 @@ class DenoisingAutoEncoder(object):
 
         self.params = [self.W, self.b, self.b_prime]
 
-    def get_corrupted_input(self, input, corruption_level):
+    def get_corrupted_input(self, inputs, corruption_level):
         """
         This function keeps ``1-corruption_level`` entries of the inputs the
         same and zero-out randomly selected subset of size ``corruption_level``
@@ -147,15 +147,15 @@ class DenoisingAutoEncoder(object):
                 result. This is needed to allow the gpu to work
                 correctly as it only support float32 for now.
         """
-        return self.theano_rng.binomial(size=input.shape, n=1,
+        return self.theano_rng.binomial(size=inputs.shape, n=1,
                                         p=1 - corruption_level,
-                                        dtype=theano.config.floatX) * input
+                                        dtype=theano.config.floatX) * inputs
 
-    def get_hidden_values(self, input):
+    def get_hidden_values(self, inputs):
         """
         Computes the values of the hidden layer
         """
-        return T.nnet.sigmoid(T.dot(input, self.W) + self.b)
+        return T.nnet.sigmoid(T.dot(inputs, self.W) + self.b)
 
     def get_reconstructed_input(self, hidden):
         """

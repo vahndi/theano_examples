@@ -42,18 +42,18 @@ class MultiLayerPerceptron(object):
         )
         # The logistic regression layer gets as inputs the hidden units of the hidden layer
         self.logRegressionLayer = LogisticRegression(
-            input=self.hiddenLayer.output,
+            inputs=self.hiddenLayer.output,
             n_in=n_hidden,
             n_out=n_out
         )
         # L1 norm ; one regularization option is to enforce L1 norm to be small
         self.L1 = (
-            abs(self.hiddenLayer.W).sum()
+            abs(self.hiddenLayer.weights).sum()
             + abs(self.logRegressionLayer.W).sum()
         )
         # square of L2 norm ; one regularization option is to enforce square of L2 norm to be small
         self.L2_sqr = (
-            (self.hiddenLayer.W ** 2).sum()
+            (self.hiddenLayer.weights ** 2).sum()
             + (self.logRegressionLayer.W ** 2).sum()
         )
         # negative log likelihood of the MLP is given by the negative

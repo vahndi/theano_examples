@@ -6,19 +6,19 @@ from theano.tensor import TensorType
 
 class LogisticRegression(object):
     """
-    Multi-class Logistic Regression Class
+    Multi-class Logistic Regression Class.
 
     The logistic regression is fully described by a weight matrix :math:`weights`
-    and bias vector :math:`b`. Classification is done by projecting data
+    and bias vector :math:`biases`. Classification is done by projecting data
     points onto a set of hyperplanes, the distance to which is used to
     determine a class membership probability.
     """
 
-    def __init__(self, input: TensorType, n_in: int, n_out: int):
+    def __init__(self, inputs: TensorType, n_in: int, n_out: int):
         """
         Initialize the parameters of the logistic regression
 
-        :param input: symbolic variable that describes the inputs of the architecture (one mini-batch)
+        :param inputs: symbolic variable that describes the inputs of the architecture (one mini-batch)
         :param n_in: number of inputs units, the dimension of the space in which the data-points lie
         :param n_out: number of output units, the dimension of the space in which the labels lie
         """
@@ -31,13 +31,13 @@ class LogisticRegression(object):
             name='weights',
             borrow=True
         )
-        # initialize the biases b as a vector of n_out 0s
+        # initialize the biases biases as a vector of n_out 0s
         self.b = theano.shared(
             value=numpy.zeros(
                 (n_out,),
                 dtype=theano.config.floatX
             ),
-            name='b',
+            name='biases',
             borrow=True
         )
 
@@ -47,9 +47,9 @@ class LogisticRegression(object):
         # weights is a matrix where column-k represent the separation hyperplane for
         # class-k
         # x is a matrix where row-j  represents inputs training sample-j
-        # b is a vector where element-k represent the free parameter of
+        # biases is a vector where element-k represent the free parameter of
         # hyperplane-k
-        self.p_y_given_x = T.nnet.softmax(T.dot(input, self.W) + self.b)
+        self.p_y_given_x = T.nnet.softmax(T.dot(inputs, self.W) + self.b)
 
         # symbolic description of how to compute prediction as class whose
         # probability is maximal
@@ -59,7 +59,7 @@ class LogisticRegression(object):
         self.params = [self.W, self.b]
 
         # keep track of model inputs
-        self.input = input
+        self.input = inputs
 
     def negative_log_likelihood(self, y):
         """Return the mean of the negative log-likelihood of the prediction
@@ -67,10 +67,10 @@ class LogisticRegression(object):
 
         .. math::
 
-            \frac{1}{|\mathcal{D}|} \mathcal{L} (\theta=\{weights,b\}, \mathcal{D}) =
+            \frac{1}{|\mathcal{D}|} \mathcal{L} (\theta=\{weights,biases\}, \mathcal{D}) =
             \frac{1}{|\mathcal{D}|} \sum_{i=0}^{|\mathcal{D}|}
-                \log(P(Y=y^{(i)}|x^{(i)}, weights,b)) \\
-            \ell (\theta=\{weights,b\}, \mathcal{D})
+                \log(P(Y=y^{(i)}|x^{(i)}, weights,biases)) \\
+            \ell (\theta=\{weights,biases\}, \mathcal{D})
 
         :type y: theano.tensor.TensorType
         :param y: corresponds to a vector that gives for each example the
@@ -103,7 +103,7 @@ class LogisticRegression(object):
         if y.ndim != self.y_pred.ndim:
             raise TypeError(
                 'y should have the same shape as self.y_pred',
-                ('y', y.type, 'y_pred', self.y_pred.type)
+                ('y', type(y), 'y_pred', type(self.y_pred))
             )
         # check if y is of the correct datatype
         if y.dtype.startswith('int'):
@@ -112,6 +112,3 @@ class LogisticRegression(object):
             return T.mean(T.neq(self.y_pred, y))
         else:
             raise NotImplementedError()
-
-
-

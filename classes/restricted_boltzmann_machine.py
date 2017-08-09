@@ -1,13 +1,3 @@
-"""
-This tutorial introduces restricted boltzmann machines (RBM) using Theano.
-
-Boltzmann Machines (BMs) are a particular form of energy-based model which
-contain hidden variables. Restricted Boltzmann Machines further restrict BMs
-to those without visible-visible and hidden-hidden connections.
-"""
-
-
-
 import numpy
 
 import theano
@@ -302,9 +292,9 @@ class RestrictedBoltzmannMachine(object):
         bit about how Theano works. Whenever you compile a Theano
         function, the computational graph that you pass as inputs gets
         optimized for speed and stability.  This is done by changing
-        several parts of the subgraphs with others.  One such
+        several parts of the sub-graphs with others.  One such
         optimization expresses terms of the form log(sigmoid(x)) in
-        terms of softplus.  We need this optimization for the
+        terms of soft-plus.  We need this optimization for the
         cross-entropy since sigmoid of numbers larger than 30. (or
         even less then that) turn to 1. and numbers smaller than
         -30. turn to 0 which in terms will force theano to compute

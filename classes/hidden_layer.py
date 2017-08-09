@@ -8,16 +8,16 @@ from theano.tensor import dmatrix
 class HiddenLayer(object):
 
     def __init__(self, rng: RandomState, inputs: dmatrix,
-                 n_in: int, n_out: int, W=None, b=None,
+                 n_in: int, n_out: int, weights=None, biases=None,
                  activation=T.tanh):
         """
         Typical hidden layer of a MLP: units are fully-connected and have
-        sigmoidal activation function. Weight matrix W is of shape (n_in, n_out)
-        and the bias vector b is of shape (n_out,).
+        sigmoidal activation function. Weight matrix weights is of shape (n_in, n_out)
+        and the bias vector biases is of shape (n_out,).
 
         NOTE : The non-linearity used here is tanh
 
-        Hidden unit activation is given by: tanh(dot(inputs, W) + b)
+        Hidden unit activation is given by: tanh(dot(inputs, weights) + biases)
 
         :param rng: a random number generator used to initialize weights
         :param inputs: a symbolic tensor of shape (n_examples, n_in)
@@ -27,7 +27,7 @@ class HiddenLayer(object):
         :param activation: non-linearity to be applied in the hidden layer
         """
         self.inputs = inputs
-        # `W` is initialized with `W_values` which is uniformly sampled
+        # `weights` is initialized with `weights_values` which is uniformly sampled
         # from sqrt(-6./(n_in+n_hidden)) and sqrt(6./(n_in+n_hidden))
         # for tanh activation function
         # the output of uniform if converted using asarray to dtype
@@ -39,8 +39,8 @@ class HiddenLayer(object):
         #        compared to tanh
         #        We have no info for other function, so we use the same as
         #        tanh.
-        if W is None:
-            W_values = asarray(
+        if weights is None:
+            weights_values = asarray(
                 rng.uniform(
                     low=-sqrt(6. / (n_in + n_out)),
                     high=sqrt(6. / (n_in + n_out)),
@@ -49,21 +49,21 @@ class HiddenLayer(object):
                 dtype=theano.config.floatX
             )
             if activation == theano.tensor.nnet.sigmoid:
-                W_values *= 4
+                weights_values *= 4
 
-            W = theano.shared(value=W_values, name='W', borrow=True)
+            weights = theano.shared(value=weights_values, name='weights', borrow=True)
 
-        if b is None:
+        if biases is None:
             b_values = zeros((n_out,), dtype=theano.config.floatX)
-            b = theano.shared(value=b_values, name='b', borrow=True)
+            biases = theano.shared(value=b_values, name='biases', borrow=True)
 
-        self.W = W
-        self.b = b
+        self.weights = weights
+        self.biases = biases
 
-        lin_output = T.dot(inputs, self.W) + self.b
+        lin_output = T.dot(inputs, self.weights) + self.biases
         self.output = (
             lin_output if activation is None
             else activation(lin_output)
         )
         # parameters of the model
-        self.params = [self.W, self.b]
+        self.params = [self.weights, self.biases]

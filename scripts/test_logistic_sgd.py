@@ -48,22 +48,16 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
                            dataset: str='mnist.pkl.gz',
                            batch_size: int=600):
     """
-    Demonstrate stochastic gradient descent optimization of a log-linear
-    model
+    Demonstrate stochastic gradient descent optimization of a log-linear model.
 
     This is demonstrated on MNIST.
 
-    :type learning_rate: float
     :param learning_rate: learning rate used (factor for the stochastic
                           gradient)
-
-    :type n_epochs: int
     :param n_epochs: maximal number of epochs to run the optimizer
-
-    :type dataset: string
     :param dataset: the path of the MNIST dataset file from
-                 http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz
-
+        http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz
+    :param batch_size: the size of a mini-batch
     """
     datasets = load_data(dataset)
 
@@ -91,7 +85,7 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
 
     # construct the logistic regression class
     # Each MNIST image has size 28*28
-    classifier = LogisticRegression(input=x, n_in=28 * 28, n_out=10)
+    classifier = LogisticRegression(inputs=x, n_in=28 * 28, n_out=10)
 
     # the cost we minimize during training is the negative log likelihood of
     # the model in symbolic format
@@ -117,7 +111,7 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
         }
     )
 
-    # compute the gradient of cost with respect to theta = (weights,b)
+    # compute the gradient of cost with respect to theta = (weights,biases)
     g_weights = T.grad(cost=cost, wrt=classifier.W)
     g_bias = T.grad(cost=cost, wrt=classifier.b)
 
@@ -165,9 +159,9 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
 
             minibatch_avg_cost = train_model(mini_batch_index)
             # iteration number
-            iter = (epoch - 1) * n_train_batches + mini_batch_index
+            iteration = (epoch - 1) * n_train_batches + mini_batch_index
 
-            if (iter + 1) % validation_frequency == 0:
+            if (iteration + 1) % validation_frequency == 0:
                 # compute zero-one loss on validation set
                 validation_losses = [validate_model(i)
                                      for i in range(n_valid_batches)]
@@ -188,7 +182,7 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
                     #  improve patience if loss improvement is good enough
                     if this_validation_loss < best_validation_loss *  \
                        improvement_threshold:
-                        patience = max(patience, iter * patience_increase)
+                        patience = max(patience, iteration * patience_increase)
 
                     best_validation_loss = this_validation_loss
                     # test it on the test set
@@ -214,7 +208,7 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
                     with open('best_model.pkl', 'w') as f:
                         pickle.dump(classifier, f)
 
-            if patience <= iter:
+            if patience <= iteration:
                 done_looping = True
                 break
 
@@ -249,13 +243,13 @@ def predict():
     )
 
     # We can test it on some examples from test test
-    dataset='mnist.pkl.gz'
+    dataset = 'mnist.pkl.gz'
     datasets = load_data(dataset)
     test_set_x, test_set_y = datasets[2]
     test_set_x = test_set_x.get_value()
 
     predicted_values = predict_model(test_set_x[:10])
-    print ("Predicted values for the first 10 examples in test set:")
+    print('Predicted values for the first 10 examples in test set:')
     print(predicted_values)
 
 
