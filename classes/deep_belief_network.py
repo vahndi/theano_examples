@@ -50,9 +50,9 @@ class DeepBeliefNetwork(object):
         # layers are shared with a different RBM.  We will first
         # construct the DBN as a deep multilayer perceptron, and when
         # constructing each sigmoidal layer we also construct an RBM
-        # that shares weights with that layer. During pretraining we
-        # will train these RBMs (which will lead to chainging the
-        # weights of the MLP as well) During finetuning we will finish
+        # that shares weights with that layer. During pre-training we
+        # will train these RBMs (which will lead to changing the
+        # weights of the MLP as well). During fine-tuning we will finish
         # training the DBN by doing stochastic gradient descent on the
         # MLP.
 

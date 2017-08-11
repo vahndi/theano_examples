@@ -45,7 +45,7 @@ from theano.tensor.shared_randomstreams import RandomStreams
 import timeit
 
 from classes.denoising_autoencoder import DenoisingAutoEncoder
-from io import load_data
+from data import load_data
 
 
 def test_da(learning_rate: float=0.1, training_epochs: int=15,

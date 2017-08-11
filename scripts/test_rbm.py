@@ -18,7 +18,7 @@ from theano.tensor.shared_randomstreams import RandomStreams
 import timeit
 
 from classes.restricted_boltzmann_machine import RestrictedBoltzmannMachine
-from io import load_data
+from data import load_data
 from utils import tile_raster_images
 
 

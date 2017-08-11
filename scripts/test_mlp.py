@@ -27,11 +27,12 @@ import theano.tensor as T
 import timeit
 
 from classes.multi_layer_perceptron import MultiLayerPerceptron
-from io import load_data
+from get_data import load_data, mnist_data_path
 
 
 def test_mlp(learning_rate: float=0.01, l1_reg: float=0.00, l2_reg: float=0.0001,
-             n_epochs: int=1000, dataset: str='mnist.pkl.gz', batch_size: int=20, n_hidden: int=500):
+             n_epochs: int=1000, dataset: str='mnist.pkl.gz', batch_size: int=20,
+             n_hidden: int=500):
     """
     Demonstrate stochastic gradient descent optimization for a multilayer perceptron
 
@@ -44,6 +45,7 @@ def test_mlp(learning_rate: float=0.01, l1_reg: float=0.00, l2_reg: float=0.0001
     :param dataset: the path of the MNIST dataset file from
         http://www.iro.umontreal.ca/~lisa/deep/data/mnist/mnist.pkl.gz
     :param batch_size: the size of a mini-batch
+    :param n_hidden: the number of hidden units
     """
     datasets = load_data(dataset)
 
@@ -70,22 +72,17 @@ def test_mlp(learning_rate: float=0.01, l1_reg: float=0.00, l2_reg: float=0.0001
 
     # construct the MLP class
     classifier = MultiLayerPerceptron(
-        rng=rng,
-        input=x,
-        n_in=28 * 28,
-        n_hidden=n_hidden,
-        n_out=10
+        rng=rng, input=x,
+        n_in=28 * 28, n_hidden=n_hidden, n_out=10
     )
 
-    # the cost we minimize during training is the negative log likelihood of
-    # the model plus the regularization terms (L1 and L2); cost is expressed
-    # here symbolically
+    # the cost we minimize during training is the negative log likelihood of the model
+    # plus the regularization terms (L1 and L2); cost is expressed here symbolically
     cost = (
         classifier.negative_log_likelihood(y)
         + l1_reg * classifier.L1
         + l2_reg * classifier.L2_sqr
     )
-    # end-snippet-4
 
     # compiling a Theano function that computes the mistakes that are made
     # by the model on a mini-batch
@@ -97,7 +94,6 @@ def test_mlp(learning_rate: float=0.01, l1_reg: float=0.00, l2_reg: float=0.0001
             y: test_set_y[index * batch_size:(index + 1) * batch_size]
         }
     )
-
     validate_model = theano.function(
         inputs=[index],
         outputs=classifier.errors(y),
@@ -107,7 +103,6 @@ def test_mlp(learning_rate: float=0.01, l1_reg: float=0.00, l2_reg: float=0.0001
         }
     )
 
-    # start-snippet-5
     # compute the gradient of cost with respect to theta (sorted in params)
     # the resulting gradients will be stored in a list g_params
     g_params = [T.grad(cost, param) for param in classifier.params]
@@ -136,7 +131,6 @@ def test_mlp(learning_rate: float=0.01, l1_reg: float=0.00, l2_reg: float=0.0001
             y: train_set_y[index * batch_size: (index + 1) * batch_size]
         }
     )
-    # end-snippet-5
 
     ###############
     # TRAIN MODEL #
@@ -220,4 +214,4 @@ def test_mlp(learning_rate: float=0.01, l1_reg: float=0.00, l2_reg: float=0.0001
 
 if __name__ == '__main__':
 
-    test_mlp()
+    test_mlp(dataset=mnist_data_path)

@@ -10,8 +10,8 @@ class DenoisingAutoEncoder(object):
     """
     Denoising Auto-Encoder class (dA)
 
-    A denoising autoencoder tries to reconstruct the inputs from a corrupted
-    version of it by projecting it first in a latent space and reprojecting
+    A denoising auto-encoder tries to reconstruct the inputs from a corrupted
+    version of it by projecting it first in a latent space and re-projecting
     it afterwards back in the inputs space. Please refer to Vincent et al.,2008
     for more details. If x is the inputs then equation (1) computes a partially
     destroyed version of x by means of a stochastic mapping q_D. Equation (2)
@@ -23,12 +23,11 @@ class DenoisingAutoEncoder(object):
 
         \tilde{x} ~ q_D(\tilde{x}|x)                                     (1)
 
-        y = s(weights \tilde{x} + biases)                                           (2)
+        y = s(weights \tilde{x} + biases)                                (2)
 
-        x = s(weights' y  + biases')                                                (3)
+        x = s(weights' y  + biases')                                     (3)
 
         L(x,z) = -sum_{k=1}^d [x_k \log z_k + (1-x_k) \log( 1-z_k)]      (4)
-
     """
     def __init__(
         self,
@@ -139,7 +138,7 @@ class DenoisingAutoEncoder(object):
                 ``corruption_level``
 
                 The binomial function return int64 data type by
-                default.  int64 multiplicated by the inputs
+                default.  int64 multiplied by the inputs
                 type(floatX) always return float64.  To keep all data
                 in floatX when floatX is float32, we set the dtype of
                 the binomial to floatX. As in our case the value of

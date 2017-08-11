@@ -4,10 +4,10 @@ import sys
 import timeit
 
 from classes.deep_belief_network import DeepBeliefNetwork
-from io import load_data
+from data import load_data
 
 
-def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
+def test_dbn(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
              pre_train_lr: float=0.01, k: int=1, training_epochs: int=1000,
              dataset: str='mnist.pkl.gz', batch_size: int=10):
     """
@@ -42,9 +42,9 @@ def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
         n_outs=10
     )
 
-    #########################
-    # PRETRAINING THE MODEL #
-    #########################
+    ##########################
+    # PRE-TRAINING THE MODEL #
+    ##########################
     print('... getting the pre-training functions')
     pre_training_fns = dbn.pre_training_functions(
         train_set_x=train_set_x, batch_size=batch_size, k=k
@@ -123,11 +123,9 @@ def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
                         improvement_threshold
                     ):
                         patience = max(patience, iteration * patience_increase)
-
                     # save best validation score and iteration number
                     best_validation_loss = this_validation_loss
                     best_iteration = iteration
-
                     # test it on the test set
                     test_losses = test_model()
                     test_score = numpy.mean(test_losses)
@@ -155,4 +153,4 @@ def test_DBN(fine_tune_lr: float=0.1, pre_training_epochs: int=100,
 
 if __name__ == '__main__':
 
-    test_DBN()
+    test_dbn()

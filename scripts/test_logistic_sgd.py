@@ -41,7 +41,7 @@ import theano.tensor as T
 import timeit
 
 from classes.logistic_regression import LogisticRegression
-from io import load_data
+from data import load_data
 
 
 def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
@@ -115,7 +115,6 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
     g_weights = T.grad(cost=cost, wrt=classifier.W)
     g_bias = T.grad(cost=cost, wrt=classifier.b)
 
-    # start-snippet-3
     # specify how to update the parameters of the model as a list of
     # (variable, update expression) pairs.
     updates = [(classifier.W, classifier.W - learning_rate * g_weights),
@@ -133,7 +132,6 @@ def sgd_optimization_mnist(learning_rate: float=0.13, n_epochs: int=1000,
             y: train_set_y[index * batch_size: (index + 1) * batch_size]
         }
     )
-    # end-snippet-3
 
     ###############
     # TRAIN MODEL #
